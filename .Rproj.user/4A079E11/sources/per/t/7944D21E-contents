@@ -1,0 +1,84 @@
+# title: functions
+# author: alec plotkin
+# date: 28july2020
+# 
+#
+# purpose: store useful functions for data manipulation, graphics, etc.
+
+##################
+# graphics
+##################
+
+# alp_theme: a function to add a common theme to all figures
+alp_theme <- function() theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.x = element_text(hjust = 0.5),
+        axis.title.y = element_text(vjust = 0.5)) +
+  theme(text = element_text(size = 14)) + 
+  theme(strip.text = element_text(color = "black"), 
+        strip.text.y = element_text(angle = 180),
+        strip.text.y.left = element_text(angle = 0),
+        strip.background = element_rect(fill = "white"), 
+        strip.placement = "outside") +
+  theme(legend.position = 'none')
+
+# wrapper on format.pval to format p-values for plots
+# @ param: p; p value to be formatted
+# @ param: digits = 1; only one significant digit
+# @ param: eps = 0.0001; all values below 0.0001 displayed as '< 0.0001'
+# @ param: scientific = FALSE; do not use scientific notation
+alp_pformat <- function(p, pmin = 0.0001, scientific = FALSE) {
+  if (p < pmin) {
+    return(paste('p <', format(pmin, scientific = scientific)))
+  } else if (p >= 0.1) {
+    newp <- format.pval(p, digits = 2)
+  } else {
+    newp <- format.pval(signif(p, digits = 1), scientific = scientific)
+  } 
+  paste('p =', newp)
+}
+
+# wrapper to vectorize alp_pformat
+valp_pformat <- Vectorize(alp_pformat)
+
+##################
+# code
+##################
+
+# function to return TRUE for columns of a data frame which are all NA
+all_na <- function(df) {
+  naCols <- colSums(modify(df, ~ !is.na(.)))
+  mode(naCols) <- 'logical'
+  !naCols
+}
+
+# wrapper to return head() and tail() of an R object in a list
+# will inherit S3 methods from the parent functions
+catdog <- function(x, n = 6L) {
+  list(HEAD = head(x, n = n), TAIL = tail(x, n = n))
+}
+
+# wrapper to paste things together with "_" as the separator
+paste_ <- function(...) {
+  paste(..., sep = "_")
+}
+
+# wrapper to take median with na.rm = TRUE
+med_na <- function(x) {
+  median(x, na.rm = TRUE)
+}
+
+# wrapper to take IQR with na.rm = TRUE
+IQR_na <- function(x) {
+  IQR(x, na.rm = TRUE)
+}
+
+# wrapper to take mean with na.rm = TRUE
+mean_na <- function(x) {
+  mean(x, na.rm = TRUE)
+}
+
+# wrapper to take sd with na.rm = TRUE
+sd_na <- function(x) {
+  sd(x, na.rm = TRUE)
+}
